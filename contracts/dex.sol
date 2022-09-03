@@ -31,7 +31,22 @@ contract Dex is Wallet {
      }
 
      function bubbleSort()public pure returns(Order[] memory){
-           
+
+          Order[] memory orders;
+
+          uint length = orders.length;
+
+          for(uint i=0; i<orders.length; i++){
+          for(uint j=0; j<orders.length; j++){
+              if(side == Side.BUY){
+               uint currentValue = orders[j];
+               orders[j] = orders[j+1];
+               orders[j+1] = currentValue;
+              }
+             }
+          }
+         return orders;
+              
      }
 
     function createLimitOrder(Side side, bytes32 ticker, uint price, uint amount)public {
