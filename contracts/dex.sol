@@ -30,60 +30,58 @@ contract Dex is Wallet {
           return orderBook[ticker][uint(side)];
      }
 
-     function bubbleSort()public pure returns(Order[] memory){
+    function createLimitOrder( Side side, bytes32 ticker, uint amount, uint price) public {
 
-          Order[] memory orders;
+        if(side == Side.BUY){
+            require(balances[msg.sender][ticker] >= amount.mul(price));
+        }
+        else if(side == Side.SELL){
+            require(balances[msg.sender][ticker] >= amount);
+        }
+        Order[] storage orders = orderBook[ticker][uint(side)];
+        orders.push( Order(nextOrderId, msg.sender, side, ticker, amount, price));
 
-          uint length = orders.length;
+        //Bubble Loop Algorithm to sort Buy and Sell orders
+        uint i = orders.length > 0 ? orders.length -1 : 0;
 
-          for(uint i=0; i<orders.length; i++){
-          for(uint j=0; j<orders.length; j++){
-              if(side == Side.BUY){
-               uint currentValue = orders[j];
-               orders[j] = orders[j+1];
-               orders[j+1] = currentValue;
-              }
-             }
-          }
-         return orders;
-              
-     }
+        if(side == Side.BUY){
+           while(i > 0){
+               if(orders[i-1].price > orders[i].price){
+                   break;
+               }
+               Order memory orderToMove = orders[i-1];
+               orders[i - 1] = orders[i];
+               orders[i] = orderToMove;
+               i--;
+           }
+        }
 
-    function createLimitOrder(Side side, bytes32 ticker, uint price, uint amount)public {
-          if(side == Side.BUY){
-            require(balances[msg.sender]["ETH"] >= amount.mul(price)); //this makes sure that there is enough ETH in the BUY side account before executing 
-          }
-          else if(side == Side.SELL){
-            require(balances[msg.sender][ticker] >= amount.mul(price)); ////this makes sure that there is enough ETH in the SELL side account before executing
-    }
-    
-     Order[] storage orders = orderBook[ticker][uint(side)]; //created an array to push the limit orders into.
+        else if(side == Side.SELL){
+            while(i > 0){
+               if(orders[i - 1].price < orders[i].price){
+                   break;
+               }
+               Order memory orderToMove = orders[i-1];
+               orders[i - 1] = orders[i];
+               orders[i] = orderToMove;
+               i--;
+           }
+        }
+        nextOrderId++;
+}
 
-     orders.push(
-      Order(nextOrderId, msg.sender, side, ticker, amount, price) //nextOrderId was created to fill the id criteria for the Order struct. This pushes the orders into the array but not in any order.
-     );
-
-
-    
 
 }
-}
+
+     
+
+
+    
 
 
 
 
 
-/* //BUBBLE SORT
 
-     uint length = orders.length;
 
-     if(side == Side.BUY){
-      
-      
 
-     }
-     else if(side == Side.SELL){
-
-     }
-
-     nextOrderId++; //this code moves on to the next order*/
