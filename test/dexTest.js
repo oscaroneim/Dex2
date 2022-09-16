@@ -10,7 +10,7 @@ const truffleAssert = require("truffle-assertions");
 
 contract ("Dex", accounts => {
     // the user must have eth deposited such that deposited eth is >= to buy order value
-    it("user's deposited ETH is >= buy order", async () => {
+    /*it("user's deposited ETH is >= buy order", async () => {
         let dex = await Dex.deployed();
         let eth = await Ether.deployed();
         await dex.addToken(web3.utils.fromUtf8("ETH"), eth.address, {from: accounts[0]});
@@ -48,38 +48,46 @@ contract ("Dex", accounts => {
         let dex = await Dex.deployed()
         let link = await Link.deployed()
         await link.approve(dex.address, 500);
-        await dex.depositEth({value: 1000});
-        
-        dex.createLimitOrder(0, web3.utils.fromUtf8("ETH"), 1, 10)
-        dex.createLimitOrder(0, web3.utils.fromUtf8("ETH"), 1, 30)
-        dex.createLimitOrder(0, web3.utils.fromUtf8("ETH"), 1, 25)
+        await dex.deposit(100, web3.utils.fromUtf8("LINK"));
 
-        let orderbook = await dex.getOrderBook(web3.utils.fromUtf8("ETH"), 0)
+        dex.createLimitOrder(0, web3.utils.fromUtf8("LINK"), 1, 10)
+        dex.createLimitOrder(0, web3.utils.fromUtf8("LINK"), 1, 30)
+        dex.createLimitOrder(0, web3.utils.fromUtf8("LINK"), 1, 25)
+
+        let orderbook = await dex.getOrderBook(web3.utils.fromUtf8("LINK"), 0);
         assert(orderbook.length > 0)
+        
+
         for(let i = 0; i < orderbook.length -1; i++){
             assert (orderbook[i].price <= orderbook[i-1].price, "Buy order book has not bee sorted")
         }
-    })
+    })*/
 
     // the sell order should be ordered on price from highest to lowest from index 0
     it("(Sell Order)should be in order from highest to lowest", async () => {
+
         let dex = await Dex.deployed()
         let link = await Link.deployed()
+
         await link.approve(dex.address, 500);
-        await dex.depositEth({value: 1000});
+        //await dex.depositEth({value: 1000});
+        await dex.deposit(100, web3.utils.fromUtf8("LINK"));
 
-        dex.createLimitOrder(1, web3.utils.fromUtf8("ETH"), 1, 10)
-        dex.createLimitOrder(1, web3.utils.fromUtf8("ETH"), 1, 30)
-        dex.createLimitOrder(1, web3.utils.fromUtf8("ETH"), 1, 25)
+        dex.createLimitOrder(1, web3.utils.fromUtf8("LINK"), 1, 10)
+        dex.createLimitOrder(1, web3.utils.fromUtf8("LINK"), 1, 30)
+        dex.createLimitOrder(1, web3.utils.fromUtf8("LINK"), 1, 25)
 
-        let orderbook = await dex.getOrderBook(web3.utils.fromUtf8("ETH"), 1);
+        let orderbook = await dex.getOrderBook(web3.utils.fromUtf8("LINK"), 1);
+        console.log(orderbook);
 
-        //assert(orderbook.length > 0);
+        assert(orderbook.length > 0);
 
         for(let i = 0; i < orderbook.length - 1; i++){
-         assert (orderbook[i].price <= orderbook[i+1].price, "Sell order book has not bee sorted")
+
+            assert (orderbook[i].price <= orderbook[i+1].price, "Sell order book has not bee sorted")
+
         }
-    }
-    )
-}
-);
+
+    })
+
+});
